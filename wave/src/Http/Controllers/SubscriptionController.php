@@ -86,6 +86,8 @@ class SubscriptionController extends Controller
         $message = '';
         $guest = (auth()->guest()) ? 1 : 0;
 
+          \Illuminate\Support\Facades\Log::info($response);
+
         if( $response->successful() ){
             $resBody = json_decode($response->body());
 
@@ -93,6 +95,8 @@ class SubscriptionController extends Controller
                 $order = $resBody->order;
 
                 $plans = Plan::all();
+
+                  \Illuminate\Support\Facades\Log::info($plans);
 
                 if($order->is_subscription && $plans->contains('plan_id', $order->product_id) ){
 
@@ -102,7 +106,13 @@ class SubscriptionController extends Controller
                         'subscription_id' => $order->subscription_id
                     ]);
 
-                    $subscriptionData = json_decode($subscriptionUser->body());
+                     \Illuminate\Support\Facades\Log::debug($subscriptionUser);
+                     \Illuminate\Support\Facades\Log::info($subscriptionUser);
+                     \Illuminate\Support\Facades\Log::error($subscriptionUser);
+
+
+                    $subscriptionData = json_decode($subscriptionUser->body()); 
+                  
                     $subscription = $subscriptionData->response[0];
 
                     if(auth()->guest()){

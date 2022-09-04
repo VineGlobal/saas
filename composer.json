@@ -23,7 +23,8 @@
         "laravel/tinker": "^2.0",
         "livewire/livewire": "^2.4",
         "tcg/voyager": "1.4.x-dev",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "dev-develop", 
+        "yajra/laravel-datatables-oracle": "^9.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

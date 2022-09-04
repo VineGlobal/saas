@@ -3,7 +3,8 @@
 Route::impersonate();
 
 Route::get('/', '\Wave\Http\Controllers\HomeController@index')->name('wave.home');
-Route::get('@{username}', '\Wave\Http\Controllers\ProfileController@index')->name('wave.profile');
+Route::get('@{username}', '\Wave\Http\Controllers\ProfileController@index')->name('wave.profile'); 
+ 
 
 // Documentation routes
 Route::view('docs/{page?}', 'docs::index')->where('page', '(.*)');
@@ -63,6 +64,12 @@ Route::group(['middleware' => 'auth'], function(){
 	Route::view('trial_over', 'theme::trial_over')->name('wave.trial_over');
 	Route::view('cancelled', 'theme::cancelled')->name('wave.cancelled');
     Route::post('switch-plans', '\Wave\Http\Controllers\SubscriptionController@switchPlans')->name('wave.switch-plans');
+    
+    
+    Route::get('lc-api', '\Wave\Http\Controllers\LandedCostController@index')->name('wave.landedcost');
+    Route::get('lc-api/transactions', '\Wave\Http\Controllers\LandedCostController@getTransactions')->name('wave.landedcost.get.transactions');  
+  
+    
 });
 
 Route::group(['middleware' => 'admin.user'], function(){

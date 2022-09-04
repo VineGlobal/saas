@@ -14,7 +14,6 @@ use TCG\Voyager\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Collection;
 
-
 use Yajra\Datatables\Datatables as dt;
 
 class LandedCostController extends Controller
@@ -30,7 +29,7 @@ class LandedCostController extends Controller
        
          if ($request->ajax()) {   
            
-            $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/1bBvQLHHgsnkQUy0cq4KnUffzTc6PQJRyhdieH4Bw93xSxMQYOqBUgEyetQQFmJP/1/10/desc');
+            $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/ssssssss/1/10/desc');
             $lcData = json_decode($lcData);
             $data = new Collection; 
             $i = 1; 

@@ -34,7 +34,9 @@ Route::post('checkout', '\Wave\Http\Controllers\SubscriptionController@checkout'
 Route::get('test', '\Wave\Http\Controllers\SubscriptionController@test');
 
 Route::group(['middleware' => 'wave'], function () {
-	Route::get('dashboard', '\Wave\Http\Controllers\DashboardController@index')->name('wave.dashboard');
+	//OG Route::get('dashboard', '\Wave\Http\Controllers\DashboardController@index')->name('wave.dashboard'); 
+    Route::get('dashboard', '\Wave\Http\Controllers\LCDashboardController@index')->name('wave.dashboard');
+    
 });
 
 Route::group(['middleware' => 'auth'], function(){
@@ -63,8 +65,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('subscribe', '\Wave\Http\Controllers\SubscriptionController@subscribe')->name('wave.subscribe');
 	Route::view('trial_over', 'theme::trial_over')->name('wave.trial_over');
 	Route::view('cancelled', 'theme::cancelled')->name('wave.cancelled');
-    Route::post('switch-plans', '\Wave\Http\Controllers\SubscriptionController@switchPlans')->name('wave.switch-plans');
-    
+    Route::post('switch-plans', '\Wave\Http\Controllers\SubscriptionController@switchPlans')->name('wave.switch-plans'); 
     
     Route::get('lc-api', '\Wave\Http\Controllers\LandedCostController@index')->name('wave.landedcost');
     Route::get('lc-api/transactions', '\Wave\Http\Controllers\LandedCostController@getTransactions')->name('wave.landedcost.get.transactions');  

@@ -12,24 +12,29 @@ use Wave\KeyValue;
 use Wave\ApiKey;
 use TCG\Voyager\Http\Controllers\Controller; 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Collection;
-
+use Illuminate\Support\Collection; 
 use Yajra\Datatables\Datatables as dt;
 
 class LandedCostController extends Controller
 {
-    public function index($section = ''){         
+    public function index($section = ''){          
         
-    	 return view('theme::landedcost.index');
+       
+          $pageName = getPageName();
+    	 return view('theme::landedcost.index',['pageName' => $pageName]);
     }
     
     public function getTransactions(Request $request)
-    {         
+    {          
+     
+        
+         if ($request->ajax()) { 
+             
+              $securityKey = auth()->user()->landedCostAPIKey->value('key');  
          
-       
-         if ($request->ajax()) {   
+            $securityKey = auth()->user()->landedCostAPIKey->value('key');   
            
-            $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/ssssssss/1/10/desc');
+            $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/'.$securityKey.'/1/10/desc');
             $lcData = json_decode($lcData);
             $data = new Collection; 
             $i = 1; 

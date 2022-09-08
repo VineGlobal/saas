@@ -15,27 +15,33 @@ use TCG\Voyager\Http\Controllers\Controller;
 class SettingsController extends Controller
 {
     public function index($section = ''){
+       
         if(empty($section)){
             return redirect(route('wave.settings', 'profile'));
-        }
-    	return view('theme::settings.index', compact('section'));
+        } 
+       
+         $pageName = getPageName(); 
+         return view('theme::settings.index',['pageName' => $pageName], compact('section'));
     }
 
     public function profilePut(Request $request){
         $request->validate([
             'name' => 'required|string',
             'email' => 'sometimes|required|email|unique:users,email,' . Auth::user()->id,
-            'username' => 'sometimes|required|unique:users,username,' . Auth::user()->id
+            'username' => 'sometimes|required|unique:users,username,' . Auth::user()->id,
+            'company_name' => 'required|required|unique:users,company_name,' . Auth::user()->company_name
         ]);
-
+       
     	$authed_user = auth()->user();
 
-    	$authed_user->name = $request->name;
-    	$authed_user->email = $request->email;
+    	$authed_user->name          = $request->name;
+    	$authed_user->email         = $request->email;
+        $authed_user->company_name   = $request->company_name;
         if($request->avatar){
     	   $authed_user->avatar = $this->saveAvatar($request->avatar, $authed_user->username);
         }
     	$authed_user->save();
+      
 
     	foreach(config('wave.profile_fields') as $key){
     		if(isset($request->{$key})){

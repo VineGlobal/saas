@@ -121,11 +121,15 @@ class User extends \TCG\Voyager\Models\User implements JWTSubject
     }
 
     public function createApiKey($name){
-        return ApiKey::create(['user_id' => $this->id, 'name' => $name, 'key' => str_random(60)]);
+        return ApiKey::create(['user_id' => $this->id, 'name' => $name, 'key' => str_random(64)]);
     }
 
     public function apiKeys(){
         return $this->hasMany('Wave\ApiKey')->orderBy('created_at', 'DESC');
+    }
+
+     public function landedCostAPIKey(){
+        return $this->hasOne('Wave\ApiKey')->where('name', '=', 'landed_cost_calculator');
     }
 
     public function daysLeftOnTrial(){

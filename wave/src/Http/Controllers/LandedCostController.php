@@ -25,13 +25,11 @@ class LandedCostController extends Controller
     }
     
     public function getTransactions(Request $request)
-    {          
-     
+    {         
         
          if ($request->ajax()) { 
              
-              $securityKey = auth()->user()->landedCostAPIKey->value('key');  
-         
+            
             $securityKey = auth()->user()->landedCostAPIKey->value('key');   
            
             $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/'.$securityKey.'/1/10/desc');
@@ -62,7 +60,89 @@ class LandedCostController extends Controller
                 ->make(true);
         }
     }
+    
+    
+    public function getTotalNumberOfTransactions(Request $request) {
+        
+            if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-TotalCount");
+                $lcData = json_decode($lcData);
+                
+                $defaultValue = 0;
+                if ($lcData->value != "") {
+                    $defaultValue = $lcData->value;
+                }
+                return $defaultValue;
+                
+            }
+    }
+    
+    
+     public function getYearlyNumberOfTransactions(Request $request) {
+        
+            if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $year               = gmdate("Y");
+                $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-Year-".$year);
+                $lcData = json_decode($lcData);
+                
+                
+                
+                $defaultValue = 0;
+                if ($lcData->value != "") {
+                    $defaultValue = $lcData->value;
+                }
+                return $defaultValue;
+            }
+    }
 
+    public function getMonthlyNumberOfTransactions(Request $request) {
+        
+            if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $year               = gmdate("Y");
+                $month              = gmdate("m");
+                $month              = ltrim($month, '0'); //remove leading zero  
+                $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-YearMonth-".$year."-".$month);
+                $lcData = json_decode($lcData);
+                
+                $defaultValue = 0;
+                if ($lcData->value != "") {
+                    $defaultValue = $lcData->value;
+                }
+                return $defaultValue;
+            }
+    }
+    
+      public function getDailyNumberOfTransactions(Request $request) {
+        
+            if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $year               = gmdate("Y");
+                $month              = gmdate("m");
+                $month              = ltrim($month, '0'); //remove leading zero 
+                $day                = gmdate("d");
+                $day              = ltrim($day, '0'); //remove leading zero  
+                $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-YearMonthDay-".$year."-".$month."-".$day);
+                $lcData = json_decode($lcData);
+                
+                $defaultValue = 0;
+                if ($lcData->value != "") {
+                    $defaultValue = $lcData->value;
+                }
+                return $defaultValue;
+            }
+    }
+    
     public function profilePut(Request $request){
         $request->validate([
             'name' => 'required|string',

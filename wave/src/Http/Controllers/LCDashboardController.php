@@ -23,7 +23,7 @@ class LCDashboardController extends \App\Http\Controllers\Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    { 
+    {  
         
         $pageName = getPageName(); 
         return view('theme::dashboard.index',['pageName' => $pageName]);

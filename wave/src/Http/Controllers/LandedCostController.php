@@ -14,6 +14,8 @@ use TCG\Voyager\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Collection; 
 use Yajra\Datatables\Datatables as dt;
+use DateTime;
+use DateInterval;
 
 class LandedCostController extends Controller
 {
@@ -141,6 +143,94 @@ class LandedCostController extends Controller
                 }
                 return $defaultValue;
             }
+    }
+    
+    public function getCurrentMonthLCChart(Request $request) { 
+           
+          if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                
+                $currentYear               = gmdate("Y");
+                $currentMonth              = gmdate("m");
+                $today                     = gmdate("d");
+              
+                $oStart = new \DateTime($currentYear .'-'. $currentMonth. '-1'); //always starts on the first
+                $oEnd = clone $oStart;
+                $oEnd->add(new \DateInterval("P1M"));
+                
+                $dates = array();
+                $calls = array();
+                
+                /* we will need to remove the leading currentMonth and today */
+                $currentMonthWithRemovedLeadingZero = ltrim($currentMonth, '0');
+                
+                
+                while ($oStart->getTimestamp() < $oEnd->getTimestamp()) { 
+                     $day           = $oStart->format('d');    
+                     $oStart->add(new \DateInterval("P1D")); 
+                     
+                     $currentDayWithRemovedLeadingZero   = ltrim($day, '0');
+                     
+                     $currentYearMonthDate  = $currentYear.'-'.$currentMonthWithRemovedLeadingZero.'-'.$currentDayWithRemovedLeadingZero;
+                     $dates[]               = $currentYearMonthDate;
+                     
+                     $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-YearMonthDay-".$currentYearMonthDate);
+                     $lcData = json_decode($lcData);
+                    
+                    $defaultValue = 0;
+                    if ($lcData->value != "") {
+                        $defaultValue = $lcData->value;
+                    }
+                    $calls[]  = $defaultValue;  
+                     
+                     if ($today == $day ) {
+                        break;
+                     }
+                }   
+              
+              return json_encode(array("dates"=>$dates,"calls"=>$calls));
+          } 
+    } 
+    
+     public function getCurrentYearLCChart(Request $request) { 
+           
+          if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                
+                $currentYear               = gmdate("Y");
+                $currentMonth              = gmdate("m");
+                $today                     = gmdate("d");
+                
+                $months = array("01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "12");
+
+                foreach ($months as $month) {  
+                      
+                     $currentMonthWithRemovedLeadingZero = ltrim($month, '0');  
+                     $currentYearMonth      = $currentYear.'-'.$currentMonthWithRemovedLeadingZero;
+                     $dates[]               = $currentYearMonth;
+                     
+                     $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-YearMonth-".$currentYearMonth);
+                     $lcData = json_decode($lcData);
+                    
+                    $defaultValue = 0;
+                    if ($lcData->value != "") {
+                        $defaultValue = $lcData->value;
+                    }
+                    $calls[]  = $defaultValue;  
+                     
+                     if ($currentMonth == $month ) {
+                        break;
+                    } 
+                     
+                } 
+                
+              
+              return json_encode(array("dates"=>$dates,"calls"=>$calls));
+          } 
     }
     
     public function profilePut(Request $request){

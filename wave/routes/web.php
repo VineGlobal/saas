@@ -71,7 +71,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('lc-api/transactions', '\Wave\Http\Controllers\LandedCostController@getTransactions')->name('wave.landedcost.get.transactions');  
     Route::get('lc-api/totalLCtransactionscount', '\Wave\Http\Controllers\LandedCostController@getTotalNumberOfTransactions')->name('wave.landedcost.get.totaltransactionscount'); Route::get('lc-api/yearlyLCTransactions', '\Wave\Http\Controllers\LandedCostController@getYearlyNumberOfTransactions')->name('wave.landedcost.get.yearlytransactionscount');
     Route::get('lc-api/monthlyLCTransactions', '\Wave\Http\Controllers\LandedCostController@getMonthlyNumberOfTransactions')->name('wave.landedcost.get.monthlytransactionscount');Route::get('lc-api/dailyLCTransactions', '\Wave\Http\Controllers\LandedCostController@getDailyNumberOfTransactions')->name('wave.landedcost.get.dailytransactionscount'); 
-   
+    Route::get('lc-api/currentMonthLCChart', '\Wave\Http\Controllers\LandedCostController@getCurrentMonthLCChart')->name('wave.landedcost.get.currentmonthlcchart'); 
+    Route::get('lc-api/currentYearLCChart', '\Wave\Http\Controllers\LandedCostController@getCurrentYearLCChart')->name('wave.landedcost.get.currentyearlcchart'); 
     
 });
 

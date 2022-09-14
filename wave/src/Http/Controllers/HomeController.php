@@ -1,7 +1,6 @@
 <?php
 
-namespace Wave\Http\Controllers;
-
+namespace Wave\Http\Controllers; 
 use Illuminate\Http\Request;
 
 class HomeController extends \App\Http\Controllers\Controller
@@ -13,9 +12,10 @@ class HomeController extends \App\Http\Controllers\Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
     	if(setting('auth.dashboard_redirect', true) != "null"){
     		if(!\Auth::guest()){
+               
     			return redirect('dashboard');
     		}
     	}
@@ -28,7 +28,8 @@ class HomeController extends \App\Http\Controllers\Controller
             'type'          => 'website'
 
         ];
-
-        return view('theme::home', compact('seo'));
+ 
+        $pageName = getPageName(); 
+        return view('theme::home',['pageName' => $pageName], compact('seo'));
     }
 }

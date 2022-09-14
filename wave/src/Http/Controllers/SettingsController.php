@@ -11,6 +11,7 @@ use Wave\User;
 use Wave\KeyValue;
 use Wave\ApiKey;
 use TCG\Voyager\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class SettingsController extends Controller
 {
@@ -25,12 +26,17 @@ class SettingsController extends Controller
     }
 
     public function profilePut(Request $request){
+        
+        Log::debug($request);
+        
         $request->validate([
             'name' => 'required|string',
-            'email' => 'sometimes|required|email|unique:users,email,' . Auth::user()->id,
+            'email' => 'sometimes|required|email|unique:users,email,' . Auth::user()->email,
             'username' => 'sometimes|required|unique:users,username,' . Auth::user()->id,
             'company_name' => 'required|required|unique:users,company_name,' . Auth::user()->company_name
         ]);
+        
+        
        
     	$authed_user = auth()->user();
 
@@ -40,6 +46,7 @@ class SettingsController extends Controller
         if($request->avatar){
     	   $authed_user->avatar = $this->saveAvatar($request->avatar, $authed_user->username);
         }
+        Log::debug($request->name);
     	$authed_user->save();
       
 

@@ -117,3 +117,18 @@ if(!function_exists('tailwindPlanColor')){
 	}
 
 }
+
+
+if(!function_exists('getPageName')){
+
+    function getPageName() {  
+        $currentUrlArray    = explode("/",url()->current());  
+        $pageName = null;
+        if ( count($currentUrlArray)>=4) {
+            $pageName           = $currentUrlArray[3];     
+        }
+        
+        return $pageName;
+    }
+
+}

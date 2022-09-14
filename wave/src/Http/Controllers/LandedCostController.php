@@ -16,49 +16,64 @@ use Illuminate\Support\Collection;
 use Yajra\Datatables\Datatables as dt;
 use DateTime;
 use DateInterval;
+use Illuminate\Support\Facades\Log;
 
 class LandedCostController extends Controller
 {
-    public function index($section = ''){          
-        
+    public function index($section = ''){        
        
-          $pageName = getPageName();
+         $pageName = getPageName();
     	 return view('theme::landedcost.index',['pageName' => $pageName]);
     }
     
     public function getTransactions(Request $request)
     {         
         
-         if ($request->ajax()) { 
+         if ($request->ajax()) {  
+            $securityKey    = auth()->user()->landedCostAPIKey->value('key');   
+            $pageLength     = $request->input('length');
+            
+            $lcAPIpageStart = 0;
+            $dtPageStart    = 0;
+            
+            if ($request->input('start') && intVal($request->input('start') >= 10)) {
+                $dtPageStart        = intVal($request->input('start'));
+                $lcAPIpageStart     = $dtPageStart/$pageLength; //the LC API uses pages not row numbers like the Datatables
+            }
              
             
-            $securityKey = auth()->user()->landedCostAPIKey->value('key');   
-           
-            $lcData = Http::get('https://api.landedcost.io/calculator/findAllWithPagination/'.$securityKey.'/1/10/desc');
-            $lcData = json_decode($lcData);
+            $url = 'https://api.landedcost.io/calculator/findAllWithPagination/'.$securityKey.'/'.$lcAPIpageStart.'/'.$pageLength.'/desc'; 
+            Log::debug($url);
+            $lcData = Http::get($url);
+            $lcData = json_decode($lcData); 
+          //      Log::debug($lcData);
             $data = new Collection; 
-            $i = 1; 
-            foreach($lcData as $_data)
-                {
+            $i = $dtPageStart+1; 
+            foreach($lcData as $_data){
+                    $i++; 
                     $data->push([
-                    'id'         => $i++,
-                    'utcDateTimeStamp'          => $_data->utcDateTimeStamp,
+                    'id'         => $i,
+                    'utcDateTimeStamp'          => $_data->utcDateTimeStamp, 
                     'code'                      => $_data->code,
                     'dutiesTotal'               => $_data->dutiesTotal,
                     'taxesTotal'                => $_data->taxesTotal,
                     'feesTotal'                 => $_data->feesTotal,
-                    'grandTotal'                => $_data->grandTotal
+                    'grandTotal'                => $_data->grandTotal,
+                    '_id'                       => $_data->id
                 ]);
+                  //  Log::debug('COUNTINGXXXXX --' . $i);
                     
                 }
-            
+            // Log::debug($data);
             return dt::of($data)
+                ->setOffset($dtPageStart)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
-                    $actionBtn = '<a href="javascript:void(0)" class="edit btn btn-success btn-sm">Edit</a> <a href="javascript:void(0)" class="delete btn btn-danger btn-sm">Delete</a>';
+                    $actionBtn = '<button onclick="showModal(\''.$row['_id'].'\');" class="edit btn btn-primary btn-md">View</button>';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
+                ->setTotalRecords($this->getTotalNumberofTransactionsforLCCAPI())
                 ->make(true);
         }
     }
@@ -66,7 +81,13 @@ class LandedCostController extends Controller
     
     public function getTotalNumberOfTransactions(Request $request) {
         
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
+                return $defaultValue = $this->getTotalNumberofTransactionsforLCCAPI(); 
+            }
+    }
+    
+    private function getTotalNumberofTransactionsforLCCAPI() {
+            
                 $company_name       = auth()->User()->company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
                 $uniqueIdentifer    = $company_name . '-' . $securityKey;
@@ -78,8 +99,7 @@ class LandedCostController extends Controller
                     $defaultValue = $lcData->value;
                 }
                 return $defaultValue;
-                
-            }
+        
     }
     
     
@@ -155,6 +175,8 @@ class LandedCostController extends Controller
                 $currentYear               = gmdate("Y");
                 $currentMonth              = gmdate("m");
                 $today                     = gmdate("d");
+                $fullMonthName             = gmdate("F"); 
+                $chartTtile                = $fullMonthName. ' ' .  $currentYear;
               
                 $oStart = new \DateTime($currentYear .'-'. $currentMonth. '-1'); //always starts on the first
                 $oEnd = clone $oStart;
@@ -190,7 +212,7 @@ class LandedCostController extends Controller
                      }
                 }   
               
-              return json_encode(array("dates"=>$dates,"calls"=>$calls));
+              return json_encode(array("dates"=>$dates,"calls"=>$calls,"title"=>$chartTtile));
           } 
     } 
     
@@ -204,6 +226,8 @@ class LandedCostController extends Controller
                 $currentYear               = gmdate("Y");
                 $currentMonth              = gmdate("m");
                 $today                     = gmdate("d");
+                $chartTtile                = $currentYear;
+                
                 
                 $months = array("01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "12");
 
@@ -229,9 +253,31 @@ class LandedCostController extends Controller
                 } 
                 
               
-              return json_encode(array("dates"=>$dates,"calls"=>$calls));
+              return json_encode(array("dates"=>$dates,"calls"=>$calls,"title"=>$chartTtile));
           } 
     }
+    
+    
+     public function getTransactionLookup(Request $request) { 
+           
+          if ($request->ajax()) {
+                $company_name       = auth()->User()->company_name;   
+                $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
+                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                
+                $_id = $request->input('_id');
+                 Log::debug("value: ".$_id);
+                
+                //  https://api.landedcost.io/calculator/1bBvQLHHgsnkQUy0cq4KnUffzTc6PQJRyhdieH4Bw93xSxMQYOqBUgEyetQQFmJP/631ee24af979df7d76b2f7fd 
+                $lcData = Http::get('https://api.landedcost.io/calculator/'.$securityKey.'/'. $_id);
+                $lcData = json_decode($lcData);
+                   
+              return json_encode(array("transaction"=>$lcData));
+          } 
+    }
+    
+    
+    
     
     public function profilePut(Request $request){
         $request->validate([

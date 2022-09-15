@@ -17,7 +17,7 @@ class CreateApiKeysTable extends Migration {
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();
 			$table->string('name');
-			$table->string('key', 60)->default('')->unique('api_tokens_token_unique');
+			$table->string('key', 70)->default('')->unique('api_tokens_token_unique');
 			$table->dateTime('last_used_at')->nullable();
 			$table->timestamps();
 		});

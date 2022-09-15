@@ -25,6 +25,7 @@
         "tcg/voyager": "1.4.x-dev",
         "tymon/jwt-auth": "dev-develop", 
         "yajra/laravel-datatables-oracle": "^9.0"
+		 
     },
     "require-dev": {
         "facade/ignition": "^2.5",

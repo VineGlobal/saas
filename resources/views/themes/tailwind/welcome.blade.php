@@ -4,11 +4,13 @@
 
 	<div class="py-20 mx-auto text-center max-w-7xl">
         <div class="w-full space-y-2">
-            <h1 class="mb-5 text-5xl font-medium">Welcome Aboard!</h1>
-            <p class="py-0 my-0">Thanks for subscribing and welcome aboard.
-
-                @if(Request::get('complete')){{ 'Please finish completing your profile information below.' }} @endif</p>
-            <p class="py-0 my-0">This file can be modified inside of your <code class="px-2 py-1 font-mono text-base font-medium text-gray-600 bg-indigo-100 rounded-md">resources/views/{{ theme_folder('/welcome.blade.php') }}</code> file ✌️</p>
+            <h1 class="mb-5 text-5xl font-medium">Welcome to LandedCost.io!</h1>
+            <p class="py-0 my-0">Thanks for signing up for the LandedCost.io trial version.</p>
+                @if(Request::get('complete'))
+                    <p class="py-0 my-0">
+                        Please complete your profile information below and check your email inbox for an email from us to verify your email address.
+                    </p> 
+                @endif     
         </div>
 
         @if(Request::get('complete'))
@@ -32,7 +34,7 @@
 
                             <div class="mt-6">
                                 <label for="name" class="block text-sm font-medium leading-5 text-gray-700">
-                                    Name
+                                    Full Name
                                 </label>
                                 <div class="mt-1 rounded-md shadow-sm">
                                     <input id="name" type="text" name="name" required class="w-full form-input" value="{{ old('name') }}" autofocus>
@@ -40,6 +42,20 @@
                                 @if ($errors->has('name'))
                                     <div class="mt-1 text-red-500">
                                         {{ $errors->first('name') }}
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="mt-6">
+                                <label for="company_name" class="block text-sm font-medium leading-5 text-gray-700">
+                                    Company Name
+                                </label>
+                                <div class="mt-1 rounded-md shadow-sm">
+                                    <input id="company_name" type="text" name="company_name" required class="w-full form-input" value="{{ old('company_name') }}" autofocus>
+                                </div>
+                                @if ($errors->has('company_name'))
+                                    <div class="mt-1 text-red-500">
+                                        {{ $errors->first('company_name') }}
                                     </div>
                                 @endif
                             </div>

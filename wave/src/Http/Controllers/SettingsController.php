@@ -31,9 +31,10 @@ class SettingsController extends Controller
         
         $request->validate([
             'name' => 'required|string',
-            'email' => 'sometimes|required|email|unique:users,email,' . Auth::user()->email,
+            //old (will keep around, may be useful) 'email' => 'sometimes|required|email|unique:users,email,' . Auth::user()->email,
+            'email' => 'sometimes|required|email|', 
             'username' => 'sometimes|required|unique:users,username,' . Auth::user()->id,
-            'company_name' => 'required|required|unique:users,company_name,' . Auth::user()->company_name
+            'company_name' => 'required|string'
         ]);
         
         

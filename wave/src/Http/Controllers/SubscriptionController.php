@@ -14,6 +14,7 @@ use Wave\Plan;
 use Wave\User;
 use Wave\PaddleSubscription;
 use TCG\Voyager\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
@@ -46,16 +47,21 @@ class SubscriptionController extends Controller
         switch($alert_name) {
 
             case 'subscription_created':
+                Log::debug('***subscription_created');    
                 break;
             case 'subscription_updated':
+                Log::debug('***subscription_updated');  
                 break;
             case 'subscription_cancelled':
+                Log::debug('***subscription_cancelled');  
                 $this->cancelSubscription($subscription_id);
                 return response()->json(['status' => 1]);
                 break;
             case 'subscription_payment_succeeded':
+                 Log::debug('***subscription_payment_succeeded');      
                 break;
             case 'subscription_payment_failed':
+                 Log::debug('***subscription_payment_failed');     
                 $this->cancelSubscription($subscription_id);
                 return response()->json(['status' => 1]);
                 break;
@@ -89,7 +95,10 @@ class SubscriptionController extends Controller
           \Illuminate\Support\Facades\Log::info($response);
 
         if( $response->successful() ){
+            
             $resBody = json_decode($response->body());
+            
+            Log::debug("--resBody Data--". print_r($resBody,true));
 
             if(isset($resBody->order)){
                 $order = $resBody->order;
@@ -112,14 +121,19 @@ class SubscriptionController extends Controller
 
 
                     $subscriptionData = json_decode($subscriptionUser->body()); 
+                     Log::debug("--subscriptionData--". print_r($subscriptionData,true)); 
                   
                     $subscription = $subscriptionData->response[0];
+
+                     Log::debug("IS Guest? --". auth()->guest());   
 
                     if(auth()->guest()){
 
                         if(User::where('email', $subscription->user_email)->exists()){
+                            Log::debug("Yes Exists");   
                             $user = User::where('email', $subscription->user_email)->first();
                         } else {
+                            Log::debug("Creating New User...");   
                             // create a new user
                             $registration = new \Wave\Http\Controllers\Auth\RegisterController;
 
@@ -130,15 +144,20 @@ class SubscriptionController extends Controller
                             ];
 
                             $user = $registration->create($user_data);
-
+                            Log::debug("After Reg Create...");  
                             Auth::login($user);
+                            Log::debug("Aftering  Login...". $user);  
                         }
 
                     } else {
                         $user = auth()->user();
+
+                         Log::debug("USER...". $user); 
                     }
 
                     $plan = Plan::where('plan_id', $subscription->plan_id)->first();
+
+                    Log::debug("Plan -- ". $plan ); 
 
                     // add associated role to user
                     $user->role_id = $plan->role_id;

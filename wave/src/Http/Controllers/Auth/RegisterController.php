@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Wave\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 
 
@@ -139,31 +141,82 @@ class RegisterController extends \App\Http\Controllers\Controller
      * @return redirect
      */
     public function complete(Request $request){
-
+        
+        Log::debug('***company name ' . $request->company_name);    
+       $internal_company_name = $this->createCompanyName($request->company_name);
+        
         if(setting('auth.username_in_registration') && setting('auth.username_in_registration') == 'yes'){
             $request->validate([
                 'name' => 'required|string|min:3|max:255',
                 'username' => 'required|string|max:20|unique:users,username,' . auth()->user()->id,
+                'company_name' => 'required|string|max:200' ,    
                 'password' => 'required|string|min:6'
             ]);
         } else {
             $request->validate([
                 'name' => 'required|string|min:3|max:255',
+                'company_name' => 'required|string|max:200|unique:users,company,' . $company_name,
                 'password' => 'required|string|min:6'
             ]);
         }
 
         // Update the user info
         $user = auth()->user();
-        $user->name = $request->name;
-        $user->username = $request->username;
-        $user->password = bcrypt($request->password);
-        $user->save();
-
+        $user->name                     = $request->name;
+        $user->username                 = $request->username;
+        $user->company_name             = $request->company_name;
+        $user->internal_company_name    = $internal_company_name;
+        $user->password                 = bcrypt($request->password);
+        $user->save();      
+                                          
+        /* create a company account in MDB **/
+        $securityKey = $this->createCompanyforAPI($user);  
+        /*create the key in the api_keys local db table **/  
+        $user->createLandedCostApiKey('landed_cost_calculator',$securityKey);    
 
         return redirect()->route('wave.dashboard')->with(['message' => 'Successfully updated your profile information.', 'message_type' => 'success']);
 
     }
+    
+    
+    private function createCompanyforAPI($user) {    
+        
+        
+        $securityKey            = $this->random_str();      
+        $companyName            = $user->internal_company_name;
+        $hsSecurityKey          = "-";
+        $version                = "2";
+        $hasSKUtoHSCodeMapping  = "false";
+        $url                    = 'https://api.landedcost.io/data/company';
+        $data = array("id"=>null,"name" => $companyName,"status" => "Active","securityKey"=>$securityKey,"hsCodeSearchAPISecurityKey" => $hsSecurityKey, "version"=>$version,'hasSKUtoHSCodeMapping'=> $hasSKUtoHSCodeMapping );
+        $response = Http::post($url,$data);            
+      
+        Log::debug("response: ". $response);
+        return $securityKey;      
+        
+    }
+    
+    
+    private function createCompanyName($company_name) {    
+        $company_name = str_replace(' ', '', $company_name) .'-'. uniqid();
+        return $company_name;
+    }
+    
+    
+    private function random_str(
+            int $length = 64,
+            string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        ): string {
+            if ($length < 1) {
+                throw new \RangeException("Length must be a positive integer");
+            }
+            $pieces = [];
+            $max = mb_strlen($keyspace, '8bit') - 1;
+            for ($i = 0; $i < $length; ++$i) {
+                $pieces []= $keyspace[random_int(0, $max)];
+            }
+            return implode('', $pieces);
+}
 
     private function sendVerificationEmail($user){
         Notification::route('mail', $user->email)->notify(new VerifyEmail($user));
@@ -179,7 +232,7 @@ class RegisterController extends \App\Http\Controllers\Controller
 
     public function verify(Request $request, $verification_code){
         $user = User::where('verification_code', '=', $verification_code)->first();
-
+        //Log::debug("Verifying.: " . print_r($user,true));
         $user->verification_code = NULL;
         $user->verified = 1;
         $user->email_verified_at = Carbon::now();

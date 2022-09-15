@@ -88,9 +88,9 @@ class LandedCostController extends Controller
     
     private function getTotalNumberofTransactionsforLCCAPI() {
             
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-TotalCount");
                 $lcData = json_decode($lcData);
                 
@@ -106,9 +106,9 @@ class LandedCostController extends Controller
      public function getYearlyNumberOfTransactions(Request $request) {
         
             if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 $year               = gmdate("Y");
                 $lcData = Http::get('https://api.landedcost.io/data/namevalue/find/'.$uniqueIdentifer."-LC-Year-".$year);
                 $lcData = json_decode($lcData);
@@ -126,9 +126,9 @@ class LandedCostController extends Controller
     public function getMonthlyNumberOfTransactions(Request $request) {
         
             if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 $year               = gmdate("Y");
                 $month              = gmdate("m");
                 $month              = ltrim($month, '0'); //remove leading zero  
@@ -146,9 +146,9 @@ class LandedCostController extends Controller
       public function getDailyNumberOfTransactions(Request $request) {
         
             if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 $year               = gmdate("Y");
                 $month              = gmdate("m");
                 $month              = ltrim($month, '0'); //remove leading zero 
@@ -168,9 +168,9 @@ class LandedCostController extends Controller
     public function getCurrentMonthLCChart(Request $request) { 
            
           if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 
                 $currentYear               = gmdate("Y");
                 $currentMonth              = gmdate("m");
@@ -219,9 +219,9 @@ class LandedCostController extends Controller
      public function getCurrentYearLCChart(Request $request) { 
            
           if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 
                 $currentYear               = gmdate("Y");
                 $currentMonth              = gmdate("m");
@@ -261,9 +261,9 @@ class LandedCostController extends Controller
      public function getTransactionLookup(Request $request) { 
            
           if ($request->ajax()) {
-                $company_name       = auth()->User()->company_name;   
+                $internal_company_name       = auth()->User()->internal_company_name;   
                 $securityKey        = auth()->user()->landedCostAPIKey->value('key');    
-                $uniqueIdentifer    = $company_name . '-' . $securityKey;
+                $uniqueIdentifer    = $internal_company_name . '-' . $securityKey;
                 
                 $_id = $request->input('_id');
                  Log::debug("value: ".$_id);

@@ -41,6 +41,8 @@ Route::group(['middleware' => 'wave'], function () {
 
 Route::group(['middleware' => 'auth'], function(){
 	Route::get('settings/{section?}', '\Wave\Http\Controllers\SettingsController@index')->name('wave.settings');
+    
+    Route::get('user/verify/{verification_code}', 'Auth\RegisterController@verify')->name('verify');
 
 	Route::post('settings/profile', '\Wave\Http\Controllers\SettingsController@profilePut')->name('wave.settings.profile.put');
 	Route::put('settings/security', '\Wave\Http\Controllers\SettingsController@securityPut')->name('wave.settings.security.put');
@@ -73,6 +75,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('lc-api/monthlyLCTransactions', '\Wave\Http\Controllers\LandedCostController@getMonthlyNumberOfTransactions')->name('wave.landedcost.get.monthlytransactionscount');Route::get('lc-api/dailyLCTransactions', '\Wave\Http\Controllers\LandedCostController@getDailyNumberOfTransactions')->name('wave.landedcost.get.dailytransactionscount'); 
     Route::get('lc-api/currentMonthLCChart', '\Wave\Http\Controllers\LandedCostController@getCurrentMonthLCChart')->name('wave.landedcost.get.currentmonthlcchart'); 
     Route::get('lc-api/currentYearLCChart', '\Wave\Http\Controllers\LandedCostController@getCurrentYearLCChart')->name('wave.landedcost.get.currentyearlcchart'); 
+    Route::get('lc-api/transactionLookup', '\Wave\Http\Controllers\LandedCostController@getTransactionLookup')->name('wave.landedcost.get.transactionLookup');    
     
 });
 
